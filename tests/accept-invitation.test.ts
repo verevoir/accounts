@@ -19,7 +19,12 @@ describe('acceptInvitation', () => {
 
   it('accepts a valid invitation and adds the user as a member', async () => {
     await store.createInvitation(
-      accountId, 'alice@example.com', 'member', 'owner-1', 'tok-1', now + oneDay,
+      accountId,
+      'alice@example.com',
+      'member',
+      'owner-1',
+      'tok-1',
+      now + oneDay,
     );
 
     const result = await acceptInvitation(store, 'tok-1', 'user-alice', now);
@@ -36,7 +41,12 @@ describe('acceptInvitation', () => {
 
   it('preserves the invited role', async () => {
     await store.createInvitation(
-      accountId, 'bob@example.com', 'admin', 'owner-1', 'tok-2', now + oneDay,
+      accountId,
+      'bob@example.com',
+      'admin',
+      'owner-1',
+      'tok-2',
+      now + oneDay,
     );
 
     const result = await acceptInvitation(store, 'tok-2', 'user-bob', now);
@@ -51,7 +61,12 @@ describe('acceptInvitation', () => {
 
   it('throws for already accepted invitation', async () => {
     await store.createInvitation(
-      accountId, 'a@x.com', 'member', 'owner-1', 'tok-3', now + oneDay,
+      accountId,
+      'a@x.com',
+      'member',
+      'owner-1',
+      'tok-3',
+      now + oneDay,
     );
     await acceptInvitation(store, 'tok-3', 'user-a', now);
 
@@ -62,7 +77,12 @@ describe('acceptInvitation', () => {
 
   it('throws for revoked invitation', async () => {
     const inv = await store.createInvitation(
-      accountId, 'a@x.com', 'member', 'owner-1', 'tok-4', now + oneDay,
+      accountId,
+      'a@x.com',
+      'member',
+      'owner-1',
+      'tok-4',
+      now + oneDay,
     );
     await store.updateInvitationStatus(inv.id, 'revoked');
 
@@ -73,7 +93,12 @@ describe('acceptInvitation', () => {
 
   it('throws and marks as expired when past expiry', async () => {
     await store.createInvitation(
-      accountId, 'a@x.com', 'member', 'owner-1', 'tok-5', now - 60,
+      accountId,
+      'a@x.com',
+      'member',
+      'owner-1',
+      'tok-5',
+      now - 60,
     );
 
     await expect(

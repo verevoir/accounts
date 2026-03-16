@@ -128,7 +128,9 @@ export function createAccountStore(options: AccountStoreOptions): AccountStore {
         where: { accountId, userId },
       });
       if (existing.length > 0) {
-        throw new Error(`User ${userId} is already a member of account ${accountId}`);
+        throw new Error(
+          `User ${userId} is already a member of account ${accountId}`,
+        );
       }
 
       const now = Math.floor(Date.now() / 1000);
@@ -151,7 +153,9 @@ export function createAccountStore(options: AccountStoreOptions): AccountStore {
       });
       const doc = docs[0];
       if (!doc) {
-        throw new Error(`User ${userId} is not a member of account ${accountId}`);
+        throw new Error(
+          `User ${userId} is not a member of account ${accountId}`,
+        );
       }
       const updated = await storage.update(doc.id, {
         ...doc.data,

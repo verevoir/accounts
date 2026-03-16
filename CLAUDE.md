@@ -28,7 +28,12 @@ const account = await store.createAccount('Acme Corp', 'user-1');
 
 // Invite a colleague
 const invitation = await store.createInvitation(
-  account.id, 'alice@example.com', 'admin', 'user-1', 'tok-abc', expiresAt,
+  account.id,
+  'alice@example.com',
+  'admin',
+  'user-1',
+  'tok-abc',
+  expiresAt,
 );
 
 // Alice accepts

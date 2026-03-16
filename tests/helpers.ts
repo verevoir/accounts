@@ -3,7 +3,10 @@ import type { StorageAdapter } from '../src/types.js';
 /** Minimal in-memory StorageAdapter for testing. No external dependency. */
 export function createMemoryStorage(): StorageAdapter {
   let nextId = 1;
-  const docs = new Map<string, { id: string; blockType: string; data: Record<string, unknown> }>();
+  const docs = new Map<
+    string,
+    { id: string; blockType: string; data: Record<string, unknown> }
+  >();
 
   return {
     async create(blockType, data) {
@@ -18,8 +21,8 @@ export function createMemoryStorage(): StorageAdapter {
       for (const doc of docs.values()) {
         if (doc.blockType !== blockType) continue;
         if (options?.where) {
-          const match = Object.entries(options.where).every(
-            ([k, v]) => (k === 'id' ? doc.id === v : doc.data[k] === v),
+          const match = Object.entries(options.where).every(([k, v]) =>
+            k === 'id' ? doc.id === v : doc.data[k] === v,
           );
           if (!match) continue;
         }

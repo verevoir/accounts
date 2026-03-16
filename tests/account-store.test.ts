@@ -85,9 +85,9 @@ describe('createAccountStore', () => {
 
     it('prevents removing the owner', async () => {
       const account = await store.createAccount('Acme', 'owner-1');
-      await expect(
-        store.removeMember(account.id, 'owner-1'),
-      ).rejects.toThrow('Cannot remove the account owner');
+      await expect(store.removeMember(account.id, 'owner-1')).rejects.toThrow(
+        'Cannot remove the account owner',
+      );
     });
 
     it('removing non-member is a no-op', async () => {
@@ -141,10 +141,20 @@ describe('createAccountStore', () => {
     it('lists invitations for an account', async () => {
       const account = await store.createAccount('Acme', 'owner-1');
       await store.createInvitation(
-        account.id, 'a@x.com', 'member', 'owner-1', 'tok-1', 999999999,
+        account.id,
+        'a@x.com',
+        'member',
+        'owner-1',
+        'tok-1',
+        999999999,
       );
       await store.createInvitation(
-        account.id, 'b@x.com', 'admin', 'owner-1', 'tok-2', 999999999,
+        account.id,
+        'b@x.com',
+        'admin',
+        'owner-1',
+        'tok-2',
+        999999999,
       );
 
       const invitations = await store.listInvitations(account.id);
@@ -154,7 +164,12 @@ describe('createAccountStore', () => {
     it('updates invitation status', async () => {
       const account = await store.createAccount('Acme', 'owner-1');
       const inv = await store.createInvitation(
-        account.id, 'a@x.com', 'member', 'owner-1', 'tok-1', 999999999,
+        account.id,
+        'a@x.com',
+        'member',
+        'owner-1',
+        'tok-1',
+        999999999,
       );
 
       const revoked = await store.updateInvitationStatus(inv.id, 'revoked');
@@ -164,7 +179,12 @@ describe('createAccountStore', () => {
     it('updates invitation with acceptedBy', async () => {
       const account = await store.createAccount('Acme', 'owner-1');
       const inv = await store.createInvitation(
-        account.id, 'a@x.com', 'member', 'owner-1', 'tok-1', 999999999,
+        account.id,
+        'a@x.com',
+        'member',
+        'owner-1',
+        'tok-1',
+        999999999,
       );
 
       const accepted = await store.updateInvitationStatus(

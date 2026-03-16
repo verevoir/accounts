@@ -24,7 +24,12 @@ const account = await store.createAccount('Acme Corp', 'user-1');
 
 // Invite a colleague
 await store.createInvitation(
-  account.id, 'alice@example.com', 'admin', 'user-1', 'tok-abc', expiresAt,
+  account.id,
+  'alice@example.com',
+  'admin',
+  'user-1',
+  'tok-abc',
+  expiresAt,
 );
 
 // Alice accepts
@@ -35,24 +40,24 @@ const { member } = await acceptInvitation(store, 'tok-abc', 'user-alice');
 
 ### Account Store
 
-| Method | Description |
-|--------|-------------|
-| `createAccount(name, ownerId)` | Create account, creator becomes owner |
-| `getAccount(accountId)` | Retrieve account by ID |
-| `getMembers(accountId)` | List all members of an account |
-| `getMemberships(userId)` | List all accounts a user belongs to |
-| `addMember(accountId, userId, role)` | Add a member |
-| `setMemberRole(accountId, userId, role)` | Change a member's role |
-| `removeMember(accountId, userId)` | Remove a member (cannot remove owner) |
-| `createInvitation(...)` | Create an email-based invitation |
-| `getInvitationByToken(token)` | Look up invitation by token |
-| `listInvitations(accountId)` | List all invitations for an account |
-| `updateInvitationStatus(id, status)` | Change invitation status |
+| Method                                   | Description                           |
+| ---------------------------------------- | ------------------------------------- |
+| `createAccount(name, ownerId)`           | Create account, creator becomes owner |
+| `getAccount(accountId)`                  | Retrieve account by ID                |
+| `getMembers(accountId)`                  | List all members of an account        |
+| `getMemberships(userId)`                 | List all accounts a user belongs to   |
+| `addMember(accountId, userId, role)`     | Add a member                          |
+| `setMemberRole(accountId, userId, role)` | Change a member's role                |
+| `removeMember(accountId, userId)`        | Remove a member (cannot remove owner) |
+| `createInvitation(...)`                  | Create an email-based invitation      |
+| `getInvitationByToken(token)`            | Look up invitation by token           |
+| `listInvitations(accountId)`             | List all invitations for an account   |
+| `updateInvitationStatus(id, status)`     | Change invitation status              |
 
 ### Accept Flow
 
-| Function | Description |
-|----------|-------------|
+| Function                                 | Description                         |
+| ---------------------------------------- | ----------------------------------- |
 | `acceptInvitation(store, token, userId)` | Validate, add member, mark accepted |
 
 ## Roles
