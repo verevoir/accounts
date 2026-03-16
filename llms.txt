@@ -1,0 +1,99 @@
+# @verevoir/accounts
+
+> Multi-user accounts, team membership, and invitations. The tenancy and billing boundary for SaaS applications. Zero runtime dependencies.
+
+## Install
+
+```bash
+npm install @verevoir/accounts
+```
+
+## Core Exports
+
+### Account Store
+
+```typescript
+import { createAccountStore, acceptInvitation } from '@verevoir/accounts';
+
+const store = createAccountStore({ storage: myStorageAdapter });
+
+// Create an account — creator becomes owner
+const account = await store.createAccount('Acme Corp', 'user-1');
+
+// Query members
+const members = await store.getMembers(account.id);
+// [{ accountId, userId: 'user-1', role: 'owner', joinedAt }]
+
+// Add a member
+await store.addMember(account.id, 'user-2', 'admin');
+
+// Change role
+await store.setMemberRole(account.id, 'user-2', 'member');
+
+// Remove (cannot remove owner)
+await store.removeMember(account.id, 'user-2');
+
+// List all accounts a user belongs to
+const memberships = await store.getMemberships('user-1');
+```
+
+### Invitations
+
+```typescript
+// Create invitation
+const inv = await store.createInvitation(
+  account.id,
+  'alice@example.com',
+  'admin',
+  'user-1',       // invitedBy
+  'tok-abc',       // token (consumer generates)
+  expiresAt,       // seconds since epoch
+);
+
+// Accept invitation
+const { invitation, member } = await acceptInvitation(store, 'tok-abc', 'user-alice');
+// invitation.status === 'accepted'
+// member.role === 'admin'
+
+// Revoke
+await store.updateInvitationStatus(inv.id, 'revoked');
+```
+
+## Types
+
+```typescript
+type MemberRole = 'owner' | 'admin' | 'member';
+type InvitationStatus = 'pending' | 'accepted' | 'expired' | 'revoked';
+
+interface Account {
+  id: string;
+  name: string;
+  createdAt: number;
+}
+
+interface Member {
+  accountId: string;
+  userId: string;
+  role: MemberRole;
+  joinedAt: number;
+}
+
+interface Invitation {
+  id: string;
+  accountId: string;
+  email: string;
+  role: MemberRole;
+  token: string;
+  status: InvitationStatus;
+  invitedBy: string;
+  createdAt: number;
+  expiresAt: number;
+  acceptedBy?: string;
+}
+```
+
+## Constraints
+
+- StorageAdapter is structural typing — no import from @verevoir/storage
+- Invitation tokens are provided by the consumer
+- Owner cannot be removed from an account
