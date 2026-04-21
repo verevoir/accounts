@@ -72,18 +72,16 @@ const { member } = await acceptInvitation(store, 'tok-abc', 'user-alice');
 
 Expiry is checked at acceptance time. Expired invitations are marked automatically.
 
-## Documentation
+## Where it sits
 
-- [Verevoir Packages](https://verevoir.io/packages)
-- [Access Control Guide](https://verevoir.io/docs/access-control)
+- **[@verevoir/access](https://www.npmjs.com/package/@verevoir/access)** — identity and policy. Use `identity.id` as the `userId` you pass into the account store.
+- **[@verevoir/stripe](https://www.npmjs.com/package/@verevoir/stripe)** — subscription billing per account. The account is the billing boundary.
+- **[@verevoir/storage](https://www.npmjs.com/package/@verevoir/storage)** — persistence. `createAccountStore({ storage })` works with any adapter.
 
-## Development
+## Docs
 
-```bash
-make build   # Compile TypeScript
-make test    # Run test suite
-make lint    # Lint and check formatting
-```
+- [Verevoir packages](https://verevoir.io/packages)
+- [Access control guide](https://verevoir.io/docs/access-control)
 
 ## License
 
