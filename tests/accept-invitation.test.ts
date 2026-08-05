@@ -27,7 +27,13 @@ describe('acceptInvitation', () => {
       now + oneDay,
     );
 
-    const result = await acceptInvitation(store, 'tok-1', 'user-alice', now);
+    const result = await acceptInvitation(
+      store,
+      'tok-1',
+      'user-alice',
+      'alice@example.com',
+      now,
+    );
 
     expect(result.invitation.status).toBe('accepted');
     expect(result.invitation.acceptedBy).toBe('user-alice');
@@ -49,13 +55,19 @@ describe('acceptInvitation', () => {
       now + oneDay,
     );
 
-    const result = await acceptInvitation(store, 'tok-2', 'user-bob', now);
+    const result = await acceptInvitation(
+      store,
+      'tok-2',
+      'user-bob',
+      'bob@example.com',
+      now,
+    );
     expect(result.member.role).toBe('admin');
   });
 
   it('throws for invalid token', async () => {
     await expect(
-      acceptInvitation(store, 'nonexistent', 'user-1', now),
+      acceptInvitation(store, 'nonexistent', 'user-1', 'a@x.com', now),
     ).rejects.toThrow('Invalid invitation token');
   });
 
@@ -68,10 +80,10 @@ describe('acceptInvitation', () => {
       'tok-3',
       now + oneDay,
     );
-    await acceptInvitation(store, 'tok-3', 'user-a', now);
+    await acceptInvitation(store, 'tok-3', 'user-a', 'a@x.com', now);
 
     await expect(
-      acceptInvitation(store, 'tok-3', 'user-b', now),
+      acceptInvitation(store, 'tok-3', 'user-b', 'a@x.com', now),
     ).rejects.toThrow('already been accepted');
   });
 
@@ -87,7 +99,7 @@ describe('acceptInvitation', () => {
     await store.updateInvitationStatus(inv.id, 'revoked');
 
     await expect(
-      acceptInvitation(store, 'tok-4', 'user-a', now),
+      acceptInvitation(store, 'tok-4', 'user-a', 'a@x.com', now),
     ).rejects.toThrow('already been revoked');
   });
 
@@ -102,11 +114,56 @@ describe('acceptInvitation', () => {
     );
 
     await expect(
-      acceptInvitation(store, 'tok-5', 'user-a', now),
+      acceptInvitation(store, 'tok-5', 'user-a', 'a@x.com', now),
     ).rejects.toThrow('expired');
 
     // Should be marked as expired in the store
     const inv = await store.getInvitationByToken('tok-5');
     expect(inv!.status).toBe('expired');
+  });
+
+  it('rejects when the user email does not match the invited address', async () => {
+    await store.createInvitation(
+      accountId,
+      'invited@example.com',
+      'member',
+      'owner-1',
+      'tok-6',
+      now + oneDay,
+    );
+
+    await expect(
+      acceptInvitation(
+        store,
+        'tok-6',
+        'user-x',
+        'someone-else@example.com',
+        now,
+      ),
+    ).rejects.toThrow('different email address');
+
+    // The invitation should still be pending — not consumed.
+    const inv = await store.getInvitationByToken('tok-6');
+    expect(inv!.status).toBe('pending');
+  });
+
+  it('matches email case-insensitively and tolerates whitespace', async () => {
+    await store.createInvitation(
+      accountId,
+      'Mixed.Case@Example.com',
+      'member',
+      'owner-1',
+      'tok-7',
+      now + oneDay,
+    );
+
+    const result = await acceptInvitation(
+      store,
+      'tok-7',
+      'user-mc',
+      '  mixed.case@example.com  ',
+      now,
+    );
+    expect(result.member.userId).toBe('user-mc');
   });
 });

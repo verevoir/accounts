@@ -32,8 +32,36 @@ await store.createInvitation(
   expiresAt,
 );
 
-// Alice accepts
-const { member } = await acceptInvitation(store, 'tok-abc', 'user-alice');
+// Alice accepts — her email must match the invited address. Pass a
+// verified email (e.g. the OAuth claim), never one the client supplied.
+const { member } = await acceptInvitation(
+  store,
+  'tok-abc',
+  'user-alice',
+  'alice@example.com',
+);
+```
+
+For anything that originates from a request, prefer the `AccountAdmin`
+facade over the raw store — it checks the caller's role before every
+mutation, so authorisation lives in one place:
+
+```typescript
+import { createAccountAdmin, AccountAdminError } from '@verevoir/accounts';
+
+const admin = createAccountAdmin({ store });
+
+// Throws AccountAdminError('forbidden') unless user-1 manages the account
+await admin.createInvitation(
+  account.id,
+  'user-1',
+  'bob@example.com',
+  'member',
+  {
+    token: 'tok-xyz',
+    expiresAt,
+  },
+);
 ```
 
 ## API
@@ -56,9 +84,22 @@ const { member } = await acceptInvitation(store, 'tok-abc', 'user-alice');
 
 ### Accept Flow
 
-| Function                                 | Description                         |
-| ---------------------------------------- | ----------------------------------- |
-| `acceptInvitation(store, token, userId)` | Validate, add member, mark accepted |
+| Function                                            | Description                                            |
+| --------------------------------------------------- | ------------------------------------------------------ |
+| `acceptInvitation(store, token, userId, userEmail)` | Validate token, expiry **and email match**; add member |
+
+The `userEmail` check exists because the token is a bearer credential on
+its own — anyone who sees an invite link in a screen-share, browser
+history, or a pasted Slack message could otherwise join the account.
+Matching is case-insensitive and tolerates surrounding whitespace.
+
+### Authorisation Facade
+
+| Function                        | Description                                                                         |
+| ------------------------------- | ----------------------------------------------------------------------------------- |
+| `createAccountAdmin({ store })` | Role-checking facade over the store; mutations only                                 |
+| `requireRole(...)`              | Standalone guard for composing your own checks                                      |
+| `AccountAdminError`             | Carries `code`: `forbidden` \| `not-member` \| `not-found` \| `cannot-modify-owner` |
 
 ## Roles
 
